@@ -8,12 +8,27 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
 
 using std::cout;
 using std::cin;
 using std::endl;
 using std::ifstream;
 using std::ofstream;
+using std::vector;
+using std::string;
+
+struct LetterGrid
+{
+	public: 
+		void initialzeGrid(ifstream& in);
+		bool findWord(string word);
+
+	private:
+		vector<vector<char>> grid;
+		bool visited;
+};
 
 int main()
 {
@@ -25,6 +40,8 @@ int main()
 	}
 
 	ofstream fout("boggle.out");
+	LetterGrid lg;
+
 
 
 }
