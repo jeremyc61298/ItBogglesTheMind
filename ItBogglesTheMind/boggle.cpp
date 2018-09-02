@@ -137,7 +137,7 @@ void LetterGrid::updateDirections(int row, int col)
 	// and ending with North
 	directions.push_back(Point(row - 1, col - 1));
 	directions.push_back(Point(row, col - 1));
-	directions.push_back(Point(row - 1, col - 1));
+	directions.push_back(Point(row + 1, col - 1));
 	directions.push_back(Point(row + 1, col));
 	directions.push_back(Point(row + 1, col + 1));
 	directions.push_back(Point(row, col + 1));
