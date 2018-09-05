@@ -34,24 +34,25 @@ struct Point
 
 struct Letter 
 {
-	char letter;
+	char letter = '#';
 	bool usedLetter = false;
 };
 
 struct LetterGrid
 {
 	public:
-		LetterGrid() : sizeRowCol(4), letterCount(0), totalLetters(0), MAX_LOOP(8) {}
+		LetterGrid() : sizeRowCol(6), letterCount(0), MAX_LOOP(8) {}
 		void initializeGrid(ifstream& in);
 		bool findWord(string word);
+		bool testNextDirections(vector<Point> directions, string wordToFind);
 		void reset();
 
 	private:
 		bool testNextDirection();
-		void updateDirections(int row, int col);
+		vector<Point> determineDirections(int row, int col);
 		vector<vector<Letter>> grid;
-		vector<Point> directions;
-		string wordToFind;
+		
+		//string wordToFind;
 		int totalLetters;
 		int letterCount;
 		int sizeRowCol;
@@ -60,38 +61,67 @@ struct LetterGrid
 
 void LetterGrid::initializeGrid(ifstream& in)
 {
-	for (int i = 0; i < sizeRowCol; i++)
+	vector <vector<Letter>> newGrid(sizeRowCol, vector<Letter>(sizeRowCol, Letter()));
+	grid = newGrid;
+	for (int i = 1; i < sizeRowCol - 1; i++)
 	{
 		string line;
-		vector<Letter> chars(4);
 		getline(in, line);
-		for (int j = 0; j < sizeRowCol; j++)
+		for (int j = 1; j < sizeRowCol - 1; j++)
 		{
-			chars[j].letter = line[j];
+			grid[i][j].letter = line[j - 1];
 		}
-		grid.push_back(chars);
 	}
 }
 
 bool LetterGrid::findWord(string word)
 {
-	wordToFind = word;
-	totalLetters = word.size();
 	bool found = false;
-	for (int i = 0; i < sizeRowCol && !found; i++)
+	for (int i = 1; i < sizeRowCol - 1 && !found; i++)
 	{
-		for (int j = 0; j < sizeRowCol && !found; j++)
+		for (int j = 1; j < sizeRowCol - 1 && !found; j++)
 		{
-			if (grid[i][j].letter == wordToFind[letterCount])
+			if (grid[i][j].letter == word[0])
 			{
 				++letterCount;
 				grid[i][j].usedLetter = true;
-				updateDirections(i, j);
-				found = testNextDirection();
+				found = testNextDirections(determineDirections(i, j), word.substr(1));
 			}
 			reset();
 		}
 	}
+	return found;
+}
+
+bool LetterGrid::testNextDirections(vector<Point> directions, string wordToFind)
+{
+	bool found = false;
+	
+	// Base Case
+	if (directions.empty()) return false;
+
+	Point dir = directions.back();
+	directions.pop_back();
+	
+	if (grid[dir.x][dir.y].letter == wordToFind[0] && !grid[dir.x][dir.y].usedLetter)
+	{
+		if (wordToFind.size() == 1)
+		{
+			// Another base case, word has been found
+			return true;
+		}
+
+		// Found next letter in the word
+		grid[dir.x][dir.y].usedLetter = true;
+		found = testNextDirections(determineDirections(dir.x, dir.y), wordToFind.substr(1));
+		grid[dir.x][dir.y].usedLetter = false;
+	}
+
+	if (found != true)
+	{
+		found = testNextDirections(directions, wordToFind);
+	}
+
 	return found;
 }
 
@@ -104,20 +134,20 @@ bool LetterGrid::testNextDirection()
 	}
 	for (int i = 0; i < MAX_LOOP && !found; i++)
 	{
-		Point dir = directions.back();
-		directions.pop_back();
-		if (dir.x >= 0 && dir.x < sizeRowCol && dir.y >= 0 && dir.y < sizeRowCol)
+		//Point dir = directions.back();
+		//directions.pop_back();
+		//if (dir.x >= 0 && dir.x < sizeRowCol && dir.y >= 0 && dir.y < sizeRowCol)
 		{
 			// direction is valid
-			if (grid[dir.x][dir.y].letter == wordToFind[letterCount] && !grid[dir.x][dir.y].usedLetter)
-			{
-				// Found next letter in the word
-				updateDirections(dir.x, dir.y);
-				++letterCount;
-				grid[dir.x][dir.y].usedLetter = true;
-				found = testNextDirection();
-				grid[dir.x][dir.y].usedLetter = false;
-			}
+			//if (grid[dir.x][dir.y].letter == wordToFind[letterCount] && !grid[dir.x][dir.y].usedLetter)
+			//{
+			//	// Found next letter in the word
+			//	updateDirections(dir.x, dir.y);
+			//	++letterCount;
+			//	grid[dir.x][dir.y].usedLetter = true;
+			//	found = testNextDirection();
+			//	grid[dir.x][dir.y].usedLetter = false;
+			//}
 		}
 	}
 	if (letterCount != totalLetters && letterCount != 0)
@@ -128,10 +158,11 @@ bool LetterGrid::testNextDirection()
 	return found;
 }
 
-void LetterGrid::updateDirections(int row, int col)
+vector<Point> LetterGrid::determineDirections(int row, int col)
 {
 	// Push new points to search for, starting with Northwest 
 	// and ending with North
+	vector<Point> directions;
 	directions.push_back(Point(row - 1, col - 1));
 	directions.push_back(Point(row, col - 1));
 	directions.push_back(Point(row + 1, col - 1));
@@ -140,12 +171,13 @@ void LetterGrid::updateDirections(int row, int col)
 	directions.push_back(Point(row, col + 1));
 	directions.push_back(Point(row - 1, col + 1));
 	directions.push_back(Point(row - 1, col));
+	return directions;
 }
 
 void LetterGrid::reset()
 {
-	directions.resize(0);
-	letterCount = 0;
+	//directions.resize(0);
+	//letterCount = 0;
 	for (int i = 0; i < sizeRowCol; i++)
 	{
 		for (int j = 0; j < sizeRowCol; j++)
