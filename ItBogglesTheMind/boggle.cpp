@@ -41,22 +41,16 @@ struct Letter
 struct LetterGrid
 {
 	public:
-		LetterGrid() : sizeRowCol(6), letterCount(0), MAX_LOOP(8) {}
+		LetterGrid() : sizeRowCol(6) {}
 		void initializeGrid(ifstream& in);
 		bool findWord(string word);
 		bool testNextDirections(vector<Point> directions, string wordToFind);
 		void reset();
 
 	private:
-		bool testNextDirection();
 		vector<Point> determineDirections(int row, int col);
 		vector<vector<Letter>> grid;
-		
-		//string wordToFind;
-		int totalLetters;
-		int letterCount;
 		int sizeRowCol;
-		const int MAX_LOOP;
 };
 
 void LetterGrid::initializeGrid(ifstream& in)
@@ -83,7 +77,6 @@ bool LetterGrid::findWord(string word)
 		{
 			if (grid[i][j].letter == word[0])
 			{
-				++letterCount;
 				grid[i][j].usedLetter = true;
 				found = testNextDirections(determineDirections(i, j), word.substr(1));
 			}
@@ -125,39 +118,6 @@ bool LetterGrid::testNextDirections(vector<Point> directions, string wordToFind)
 	return found;
 }
 
-bool LetterGrid::testNextDirection()
-{
-	bool found = false;
-	if (letterCount == totalLetters)
-	{
-		found = true;
-	}
-	for (int i = 0; i < MAX_LOOP && !found; i++)
-	{
-		//Point dir = directions.back();
-		//directions.pop_back();
-		//if (dir.x >= 0 && dir.x < sizeRowCol && dir.y >= 0 && dir.y < sizeRowCol)
-		{
-			// direction is valid
-			//if (grid[dir.x][dir.y].letter == wordToFind[letterCount] && !grid[dir.x][dir.y].usedLetter)
-			//{
-			//	// Found next letter in the word
-			//	updateDirections(dir.x, dir.y);
-			//	++letterCount;
-			//	grid[dir.x][dir.y].usedLetter = true;
-			//	found = testNextDirection();
-			//	grid[dir.x][dir.y].usedLetter = false;
-			//}
-		}
-	}
-	if (letterCount != totalLetters && letterCount != 0)
-	{
-		--letterCount;
-	}
-
-	return found;
-}
-
 vector<Point> LetterGrid::determineDirections(int row, int col)
 {
 	// Push new points to search for, starting with Northwest 
@@ -176,8 +136,6 @@ vector<Point> LetterGrid::determineDirections(int row, int col)
 
 void LetterGrid::reset()
 {
-	//directions.resize(0);
-	//letterCount = 0;
 	for (int i = 0; i < sizeRowCol; i++)
 	{
 		for (int j = 0; j < sizeRowCol; j++)
